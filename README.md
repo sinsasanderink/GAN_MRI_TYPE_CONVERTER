@@ -193,7 +193,7 @@ Discriminators use a **70×70 PatchGAN**, focusing on **local realism** rather t
 
 ## 📦 Dependencies
 
-```python
+```
 tensorflow>=2.8.0  
 numpy>=1.21.0  
 matplotlib>=3.5.0  
