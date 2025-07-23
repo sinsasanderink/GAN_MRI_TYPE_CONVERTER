@@ -2,9 +2,8 @@
 
 ![MRI T1↔T2 Conversion Example](conversion.png)
 
-
 **Author:** Ursina Sanderink  
-**Technology Stack:** TensorFlow, Python, Google Colab  
+**Technology Stack:** TensorFlow, Python  
 **Model Architecture:** CycleGAN with 114+ Million Parameters
 
 ---
@@ -13,35 +12,86 @@
 
 This project implements a Cycle-Consistent Generative Adversarial Network (CycleGAN) for **bidirectional transformation** between **T1-weighted** and **T2-weighted** brain MRI scans — *without requiring paired training data*.
 
+The goal: Create a tool that can **generate one MRI contrast from the other** to assist clinicians, reduce patient scan time, and improve access to diagnostic imaging.
+
+---
+
+## 🧠 Problem Statement
+
+MRI scans with different contrasts (T1, T2, etc.) provide complementary information. However, acquiring multiple sequences:
+
+- ⏳ Increases scanning time  
+- 💰 Raises costs  
+- 😩 Causes patient discomfort  
+- 🧭 Is not always feasible in emergencies or low-resource settings
+
+We aim to **synthesize missing contrasts** using unpaired image-to-image translation — specifically T1 ↔ T2 — using deep generative modeling.
+
+---
+
+## 🧬 Model Architecture
+
+This solution is based on the **CycleGAN framework**, which consists of two generators and two discriminators trained jointly in an adversarial and cycle-consistent way.
+
+![CycleGAN Architecture](cyclegan.png)
+
+### 🔁 Core Components
+
+- **Generator G**: T1 → T2 (54.4M parameters)  
+- **Generator F**: T2 → T1 (54.4M parameters)  
+- **Discriminator X**: Distinguishes real vs fake T1  
+- **Discriminator Y**: Distinguishes real vs fake T2  
+- **Total Parameters**: 114,344,708
+
+### 🧠 Generator Architecture — U-Net
+
+To preserve spatial anatomy, the generators use a **U-Net-style encoder-decoder** with skip connections. This is essential in medical imaging.
+
+![U-Net Architecture](unet.png)
+
+- **8-level deep** encoder/decoder  
+- **Instance normalization** for contrast adaptation  
+- **Skip connections** preserve structural fidelity
+
+### 🧪 Discriminator — PatchGAN
+
+Discriminators use a **70×70 PatchGAN**, focusing on **local realism** rather than global structure, which speeds up training and generalizes better.
+
+---
+
+## ⚙️ GAN Principles Refresher
+
+![GAN Architecture](ganarchitecture.png)
+
+- **Generator**: Learns to produce realistic T1/T2 images  
+- **Discriminator**: Learns to detect fake images  
+- **Adversarial Loss**: Pushes realism  
+- **Cycle Consistency Loss**: Enforces anatomical integrity  
+- **Identity Loss**: Stabilizes color and contrast
+
+> The model balances these losses to ensure both **realistic output** and **anatomical faithfulness**.
+
 ---
 
 ## 🏥 Clinical Motivation
 
-- ⏱ **Reduced Scan Times**: Generate missing MRI sequences virtually
-- 😌 **Patient Comfort**: Shorter procedures reduce discomfort and movement
-- 💸 **Cost Efficiency**: Streamlined radiology workflows
-- 🚑 **Emergency Imaging**: Faster decisions with limited sequences
+- ⏱ **Reduced Scan Times**: Generate missing MRI sequences virtually  
+- 😌 **Patient Comfort**: Shorter procedures reduce discomfort and movement  
+- 💸 **Cost Efficiency**: Streamlined radiology workflows  
+- 🚑 **Emergency Imaging**: Faster decisions with limited sequences  
 - 🌍 **Global Health**: Extend diagnostic capabilities in low-resource settings
 
 ---
 
-## 🧰 Technical Architecture
-
-### 🧬 Model Components
-
-- **Generator G (T1 → T2)** — 54.4M params  
-- **Generator F (T2 → T1)** — 54.4M params  
-- **Discriminator X (T1 domain)** — 2.8M params  
-- **Discriminator Y (T2 domain)** — 2.8M params  
-- **Total Parameters**: 114,344,708
+## 🧰 Technical Architecture Summary
 
 ### 🔧 Key Features
 
-- 🧠 **U-Net Generators**: 8-level encoder-decoder with skip connections  
-- 📦 **PatchGAN Discriminators**: 70×70 receptive field for realism  
-- 🧼 **Instance Normalization**: Optimized for style transfer  
-- 🔁 **Cycle Consistency (λ=10.0)**: Preserves anatomical structures  
-- 🆔 **Identity Loss (λ=0.5)**: Maintains image characteristics
+- 🧠 **U-Net Generators**: Encoder-decoder with skip connections  
+- 📦 **PatchGAN Discriminators**  
+- 🧼 **Instance Normalization**  
+- 🔁 **Cycle Consistency (λ=10.0)**  
+- 🆔 **Identity Loss (λ=0.5)**  
 
 ---
 
@@ -49,17 +99,9 @@ This project implements a Cycle-Consistent Generative Adversarial Network (Cycle
 
 ### 🧪 Medical Image Optimizations
 
-- Preprocessing tailored for **16-bit medical data**
-- Loss functions aware of **anatomical structure**
-- Preservation of **quantitative voxel relationships**
-- Medical-specific **data augmentation**
-
-### ☁️ Google Colab Integration
-
-- 🔍 Automatic **GPU detection & optimization**
-- 📈 Memory scaling for **T4 GPUs**
-- ☁️ One-click **dataset upload and extraction**
-- 📊 Real-time training visualization
+- Support for **16-bit grayscale DICOM-style data**  
+- Specialized preprocessing to retain voxel-level detail  
+- Smart augmentations to simulate real-world variability
 
 ---
 
@@ -67,7 +109,7 @@ This project implements a Cycle-Consistent Generative Adversarial Network (Cycle
 
 ### 💻 Training Specs
 
-- **Hardware**: Google Colab (T4 GPU – 16GB VRAM)  
+- **Hardware**: T4 GPU – 16GB VRAM  
 - **Memory Usage**: ~12GB  
 - **Batch Size**: 1  
 - **Speed**: ~45 sec/epoch  
@@ -89,26 +131,6 @@ This project implements a Cycle-Consistent Generative Adversarial Network (Cycle
 
 ---
 
-## 🚀 Usage
-
-### ☁️ Google Colab Setup
-
-1. Upload `Complete_MRI_CycleGAN_Colab.ipynb`
-2. Enable GPU → `Runtime > Change runtime type > GPU`
-3. Run all cells
-4. Upload your dataset when prompted
-5. Watch training unfold with live graphs
-
-### 📁 Dataset Structure
-
-```
-MRI_Dataset/
-├── Tr1/TrainT1/     # T1-weighted images
-└── Tr2/TrainT2/     # T2-weighted images
-```
-
----
-
 ## 🔧 Key Hyperparameters
 
 - 📉 Learning Rate: `2e-4`  
@@ -123,17 +145,17 @@ MRI_Dataset/
 
 - 🧬 Instance norm customized for medical domains  
 - ⚖️ Loss balancing for structure preservation  
-- ☁️ Memory-efficient for free cloud GPUs  
-- 📈 Interactive monitoring & reproducibility
+- 📈 Interactive monitoring & reproducibility  
+- 💾 Lightweight enough for free GPU use
 
 ---
 
 ## 🧪 Research Contributions
 
 - 🔄 Unpaired medical image translation  
-- ☁️ Full Google Colab support for accessibility  
 - 🎓 Teaching framework for GAN learners  
-- 📚 Reproducible and open-source medical AI research
+- 📚 Reproducible and open-source medical AI research  
+- 🧠 Bridging radiology needs with deep learning tools
 
 ---
 
@@ -143,7 +165,6 @@ MRI_Dataset/
 
 - 💾 Model Size: ~450MB (float32)  
 - ⚙️ Parameters: 114M  
-- ☁️ Free-tier Colab compatible  
 - 📈 Stable training with consistent convergence
 
 ### 👁 Qualitative Assessment
@@ -170,19 +191,6 @@ MRI_Dataset/
 
 ---
 
-## 📁 File Structure
-
-```
-├── Complete_MRI_CycleGAN_Colab.ipynb  # Notebook for Colab
-├── gan_architecture.py                # Model architecture
-├── data_pipeline.py                   # Data preprocessing
-├── train_cyclegan.py                  # Training script
-├── demo_inference.py                  # Sample inference
-└── README.md                          # This file
-```
-
----
-
 ## 📦 Dependencies
 
 ```python
@@ -191,40 +199,30 @@ numpy>=1.21.0
 matplotlib>=3.5.0  
 opencv-python>=4.5.0  
 pillow>=8.3.0  
-tqdm>=4.62.0  
-```
-
----
+tqdm>=4.62.0
 
 ## 🔖 Citation
-
 If you use this implementation in your research:
 
-```
+
 @misc{sanderink2025mri_cyclegan,
   title={MRI T1-T2 Style Transfer using CycleGAN},
   author={Ursina Sanderink},
   year={2025},
   howpublished={\url{https://github.com/your-repo/mri-cyclegan}}
 }
-```
-
----
 
 ## 📄 License
-
-MIT License — see `LICENSE` file for details.
-
----
+MIT License — see LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- 🧠 Built on CycleGAN by **Zhu et al. (2017)**  
-- 💡 Inspired by the medical imaging research community  
-- ☁️ Optimized for **Google Colab** usage  
-- 🎓 Designed as an **educational tool** for deep learning in healthcare
+🧠 Based on CycleGAN by Zhu et al. (2017)
 
----
+💡 Inspired by work in medical GAN research
 
-> ⚠️ **Disclaimer**: For research and education only. Not for clinical diagnosis or medical decision-making without proper validation.
+🧪 Designed to teach & explore AI in radiology
 
+🎓 Educational bridge between imaging & deep learning
+
+⚠️ Disclaimer: For research and education only. Not for clinical diagnosis or medical decision-making without regulatory approval.
