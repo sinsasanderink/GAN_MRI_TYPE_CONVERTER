@@ -200,6 +200,7 @@ matplotlib>=3.5.0
 opencv-python>=4.5.0  
 pillow>=8.3.0  
 tqdm>=4.62.0
+```
 
 ## 🔖 Citation
 If you use this implementation in your research:
