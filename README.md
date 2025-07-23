@@ -1,5 +1,8 @@
 # 🧠 MRI T1-T2 Style Transfer using CycleGAN
 
+![MRI T1↔T2 Conversion Example](conversion.png)
+
+
 **Author:** Ursina Sanderink  
 **Technology Stack:** TensorFlow, Python, Google Colab  
 **Model Architecture:** CycleGAN with 114+ Million Parameters
