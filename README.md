@@ -205,13 +205,14 @@ tqdm>=4.62.0
 ## 🔖 Citation
 If you use this implementation in your research:
 
-
+```
 @misc{sanderink2025mri_cyclegan,
   title={MRI T1-T2 Style Transfer using CycleGAN},
   author={Ursina Sanderink},
   year={2025},
   howpublished={\url{https://github.com/your-repo/mri-cyclegan}}
 }
+```
 
 ## 📄 License
 MIT License — see LICENSE file for details.
